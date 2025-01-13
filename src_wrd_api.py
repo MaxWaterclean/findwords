@@ -33,6 +33,10 @@ def analyze_characters(words: List[str]) -> List[str]:
     most_common = Counter(characters).most_common(5)
     return [char for char, _ in most_common]
 
+# Get all unique characters in the matched words
+def get_unique_characters(words: List[str]) -> List[str]:
+    return sorted(set(char for word in words for char in word))
+
 @app.post("/find_words/")
 def find_words(request: WordSchemaRequest):
     # Load vocabulary
@@ -48,26 +52,34 @@ def find_words(request: WordSchemaRequest):
     # Analyze characters
     popular_characters = analyze_characters(matching_words)
 
+    # Get all unique characters
+    unique_characters = get_unique_characters(matching_words)
+
     return {
         "pattern": request.pattern,
         "matching_words_count": len(matching_words),
-        "popular_characters": popular_characters
+        "matching_words": matching_words,
+        "popular_characters": popular_characters,
+        "all_characters": unique_characters
     }
 
-# For local testing, uncomment the following lines:
-# if __name__ == "__main__":
-#     # Allow testing via user input
-#     print("--- Test Find Words API Locally ---")
-#     pattern = input("Enter pattern (e.g., M----E or MA-A-E): ")
-#     vocabulary_file = "voc_ita.txt"
+#For local testing, uncomment the following lines:
+if __name__ == "__main__":
+    # Allow testing via user input
+    print("--- Test Find Words API Locally ---")
+    pattern = input("Enter pattern (e.g., M----E or MA-A-E): ")
+    vocabulary_file = "voc_ita.txt"
 
-#     try:
-#         vocabulary = load_vocabulary(vocabulary_file)
-#         matching_words = match_pattern(vocabulary, pattern)
-#         popular_characters = analyze_characters(matching_words)
+    try:
+        vocabulary = load_vocabulary(vocabulary_file)
+        matching_words = match_pattern(vocabulary, pattern)
+        popular_characters = analyze_characters(matching_words)
+        unique_characters = get_unique_characters(matching_words)
 
-#         print(f"Pattern: {pattern}")
-#         print(f"Number of matching words: {len(matching_words)}")
-#         print(f"Most popular characters: {popular_characters}")
-#     except FileNotFoundError as e:
-#         print(f"Error: {e}")
+        print(f"Pattern: {pattern}")
+        print(f"Number of matching words: {len(matching_words)}")
+        print(f"Matching words: {matching_words}")
+        print(f"Most popular characters: {popular_characters}")
+        print(f"All characters: {unique_characters}")
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
